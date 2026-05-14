@@ -1,0 +1,750 @@
+import { useState } from "react";
+
+const sections = [
+  {
+    id: 1,
+    emoji: "⚛️",
+    titre: "Le cortège électronique",
+    couleur: "#4f46e5",
+    fond: "#eef2ff",
+    contenu: [
+      {
+        type: "definition",
+        titre: "Où sont les électrons ?",
+        texte:
+          "Les électrons appartiennent à des couches électroniques autour du noyau. Ils ne suivent pas une trajectoire bien déterminée.",
+      },
+      {
+        type: "regle",
+        titre: "Les sous-couches électroniques",
+        lignes: [
+          "Sous-couche s → 2 électrons au maximum",
+          "Sous-couche p → 6 électrons au maximum",
+          "Les électrons de la dernière couche = électrons de valence",
+          "Les électrons non-liants (non de valence) = électrons de cœur",
+        ],
+      },
+      {
+        type: "schema",
+        titre: "Ordre de remplissage des couches",
+        ascii: `
+1s → 2s → 2p → 3s → 3p → ...
+
+Carbone (Z=6) : 1s² 2s² 2p²
+Chlore (Z=17) : 1s² 2s² 2p⁶ 3s² 3p⁵
+Potassium (Z=19) : 1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹`,
+      },
+      {
+        type: "exemple",
+        titre: "Electrons de valence",
+        lignes: [
+          "Carbone C (Z=6) : configuration 1s² 2s² 2p² → 4 électrons de valence",
+          "Chlore Cl (Z=17) : configuration ...3s² 3p⁵ → 7 électrons de valence",
+          "Potassium K (Z=19) : configuration ...4s¹ → 1 électron de valence",
+        ],
+      },
+      {
+        type: "piege",
+        titre: "⚡ Points à retenir (surlignés en cours)",
+        lignes: [
+          "On ne compte QUE les électrons de valence pour construire les schémas de Lewis",
+          "Ne pas oublier les e⁻ en (+) ou en (−) pour les ions",
+          "Un électron ne peut pas être placé dans une couche si la précédente n'est pas remplie",
+          "La sous-couche 's' peut accueillir 2 électrons max, 'p' peut accueillir 6 électrons max",
+        ],
+      },
+    ],
+  },
+  {
+    id: 2,
+    emoji: "🔒",
+    titre: "Stabilité des entités chimiques",
+    couleur: "#0891b2",
+    fond: "#ecfeff",
+    contenu: [
+      {
+        type: "definition",
+        titre: "Pourquoi les gaz nobles sont stables ?",
+        texte:
+          "Les gaz nobles (colonne 18 du tableau périodique) sont stables car leur couche électronique externe est complètement remplie. Ils ont leur dernière sous-couche saturée.",
+      },
+      {
+        type: "regle",
+        titre: "Règle de l'octet et du duet",
+        lignes: [
+          "Règle de l'OCTET : un atome tend à s'entourer de 8 électrons de valence (comme les gaz nobles de la 2e et 3e période)",
+          "Règle du DUET : l'hydrogène H tend à avoir 2 électrons (comme l'hélium He)",
+          "Pour être stable, un atome va former des liaisons ou gagner/perdre des électrons",
+        ],
+      },
+      {
+        type: "schema",
+        titre: "Comment évoluer vers la stabilité ?",
+        ascii: `
+COLONNE 1 → forme un CATION chargé 1+   (perd 1 e⁻)
+COLONNE 17 → forme un ANION chargé 1−   (gagne 1 e⁻)
+COLONNE 13 → forme un CATION chargé 3+  (perd 3 e⁻)
+
+Exemples :
+Na (col. 1)  → Na⁺  (perd 1 e⁻)
+Cl (col. 17) → Cl⁻  (gagne 1 e⁻)`,
+      },
+      {
+        type: "exemple",
+        titre: "Ion chlorure Cl⁻",
+        lignes: [
+          "Cl a Z=17 → configuration : 1s² 2s² 2p⁶ 3s² 3p⁵ (7 e⁻ de valence)",
+          "Pour être stable → gagne 1 e⁻ → Cl⁻",
+          "Configuration de Cl⁻ : 1s² 2s² 2p⁶ 3s² 3p⁶ (comme l'argon Ar)",
+        ],
+      },
+      {
+        type: "piege",
+        titre: "⚡ Points à retenir",
+        lignes: [
+          "Les atomes de la colonne 1 forment des CATIONS chargés +",
+          "Les atomes de la colonne 17 forment des ANIONS chargés −",
+          "S'assembler en molécule ou en ion polyatomique = autre façon d'être stable",
+        ],
+      },
+    ],
+  },
+  {
+    id: 3,
+    emoji: "🔗",
+    titre: "Formation des molécules & Schéma de Lewis",
+    couleur: "#059669",
+    fond: "#ecfdf5",
+    contenu: [
+      {
+        type: "definition",
+        titre: "Pourquoi les atomes forment des molécules ?",
+        texte:
+          "Un atome met en commun des électrons avec d'autres atomes pour : être plus stable ET avoir la même configuration électronique que le gaz noble le plus proche dans la classification.",
+      },
+      {
+        type: "definition",
+        titre: "Qu'est-ce qu'un schéma de Lewis ?",
+        texte:
+          "C'est un schéma dans lequel les atomes qui constituent une molécule sont représentés avec TOUS leurs électrons de valence des atomes, qui peuvent être liants ou non liants.",
+      },
+      {
+        type: "regle",
+        titre: "Les deux types de doublets",
+        lignes: [
+          "DOUBLET LIANT : paire d'électrons mise en commun entre 2 atomes → représenté par un TRAIT entre les deux atomes",
+          "DOUBLET NON LIANT : paire d'électrons appartenant à un seul atome → représenté par un TIRET sur l'atome",
+          "Un TRAIT dans le schéma de Lewis = 2 électrons de valence",
+        ],
+      },
+      {
+        type: "methode",
+        titre: "Méthode pour construire un schéma de Lewis (la règle + simple)",
+        lignes: [
+          "ÉTAPE 1 : Dessiner les électrons de valence des atomes (par des points jusqu'à 4, puis flèches appariées)",
+          "ÉTAPE 2 : Lier les atomes en appariant les électrons → chaque atome s'entoure de 4 doublets",
+          "RAPPEL : H s'entoure de 1 SEUL doublet (règle du duet)",
+          "Pourquoi 4 doublets ? Pour avoir la structure électronique la plus proche du gaz noble",
+        ],
+      },
+      {
+        type: "schema",
+        titre: "Schémas de Lewis des molécules à connaître",
+        ascii: `
+H₂ (dihydrogène) :      H — H
+
+H₂O (eau) :             H — O — H
+                              ¨¨  (2 doublets non liants sur O)
+
+NH₃ (ammoniac) :           H
+                        H — N — H
+                            ¨   (1 doublet non liant sur N)
+
+CH₄ (méthane) :            H
+                        H — C — H
+                            |
+                            H
+
+CO₂ (dioxyde de carbone) : O = C = O
+                           (doubles liaisons)
+
+N₂ (diazote) :         N ≡ N
+                       (triple liaison)`,
+      },
+      {
+        type: "schema",
+        titre: "Schémas de Lewis des ions polyatomiques",
+        ascii: `
+Ion ammonium NH₄⁺ :         H
+                         H — N⁺— H
+                             |
+                             H
+  (charge globale = +1 car N a perdu 1 doublet non liant)
+
+Ion hydroxyde HO⁻ :     H — O⁻
+                              ¨¨¨ (3 doublets non liants sur O)
+  (charge globale = −1 car O a gagné 1 électron)`,
+      },
+      {
+        type: "regle",
+        titre: "Schéma de Lewis d'un ION",
+        lignes: [
+          "Pour un ion : on indique au niveau de l'ion le nombre d'électrons qui correspond à sa charge",
+          "CATION (chargé +) : il y a un DÉFICIT d'électrons → s'il y a excès, il s'agit d'un ANION chargé négativement",
+          "ANION (chargé −) : il y a un EXCÈS d'électrons",
+          "La charge de l'ion est due à un excès ou un déficit d'électrons",
+        ],
+      },
+      {
+        type: "exemple",
+        titre: "Exemple : Ion ammonium NH₄⁺",
+        lignes: [
+          "N a Z=7 → configuration : 1s² 2s² 2p³ → 5 e⁻ de valence",
+          "Dans NH₄⁺ : N partage ses 5 e⁻ de valence avec 4 H → plus aucun doublet non liant",
+          "La charge + vient du fait que N a 'cédé' un doublet non liant pour former la liaison avec H⁺",
+          "H dans NH₄⁺ : configuration 1s¹ → 1 électron de valence (règle du duet respectée)",
+        ],
+      },
+      {
+        type: "piege",
+        titre: "⚡ Points à retenir",
+        lignes: [
+          "Dans le schéma de Lewis, on représente TOUS les électrons de valence (liants ET non liants)",
+          "Un trait = 2 électrons / Un doublet non liant = 2 électrons sur un seul atome",
+          "H ne forme toujours qu'UNE SEULE liaison (1 seul doublet liant)",
+          "L'oxygène O forme toujours 2 liaisons et possède 2 doublets non liants",
+          "L'azote N forme toujours 3 liaisons et possède 1 doublet non liant",
+          "On a ajouté 8 électrons à O en formant une molécule → O est stable",
+        ],
+      },
+    ],
+  },
+  {
+    id: 4,
+    emoji: "📐",
+    titre: "Géométrie des molécules (modèle VSEPR)",
+    couleur: "#7c3aed",
+    fond: "#f5f3ff",
+    contenu: [
+      {
+        type: "definition",
+        titre: "Qu'est-ce que le modèle VSEPR ?",
+        texte:
+          'VSEPR = "Valence Shell Electron Pair Repulsion" = répulsion des paires d\'électrons de valence. Les doublets liants ET non liants se repoussent mutuellement. C\'est cette répulsion qui détermine la géométrie de la molécule.',
+      },
+      {
+        type: "regle",
+        titre: "La figure de répulsion → la géométrie réelle",
+        lignes: [
+          "La FIGURE DE RÉPULSION = disposition de TOUS les doublets (liants + non liants) autour de l'atome central",
+          "La GÉOMÉTRIE DE LA MOLÉCULE = disposition des ATOMES seulement (sans compter les doublets non liants)",
+          "Les doublets non liants 'écrasent' plus que les doublets liants → ils modifient les angles",
+        ],
+      },
+      {
+        type: "schema",
+        titre: "Tableau des géométries à connaître",
+        ascii: `
+┌─────────────┬──────────────┬────────────┬──────────────────────────┐
+│  Molécule   │ Doublets     │ Doublets   │ Géométrie                │
+│             │ liants (m)   │ non liants │                          │
+├─────────────┼──────────────┼────────────┼──────────────────────────┤
+│ CH₄         │     4        │     0      │ TÉTRAÉDRIQUE             │
+│ méthane     │              │            │ angles ≈ 109,5°          │
+├─────────────┼──────────────┼────────────┼──────────────────────────┤
+│ NH₃         │     3        │     1      │ PYRAMIDALE à base        │
+│ ammoniac    │              │            │ triangulaire             │
+├─────────────┼──────────────┼────────────┼──────────────────────────┤
+│ H₂O         │     2        │     2      │ COUDÉE (ou angulaire)    │
+│ eau         │              │            │ angle ≈ 104,5°           │
+├─────────────┼──────────────┼────────────┼──────────────────────────┤
+│ CO₂         │  2 (doubles) │     0      │ LINÉAIRE                 │
+│ dioxyde C   │              │            │ angle = 180°             │
+├─────────────┼──────────────┼────────────┼──────────────────────────┤
+│ NH₄⁺        │     4        │     0      │ TÉTRAÉDRIQUE             │
+│ ion ammonium│              │            │                          │
+└─────────────┴──────────────┴────────────┴──────────────────────────┘`,
+      },
+      {
+        type: "schema",
+        titre: "Visualisation des formes",
+        ascii: `
+TÉTRAÉDRIQUE (ex: CH₄)     PYRAMIDALE (ex: NH₃)
+        H                         H
+        |                        /|
+    H — C — H                H — N
+        |                        ¨ (doublet non liant en haut)
+        H
+
+COUDÉE (ex: H₂O)          LINÉAIRE (ex: CO₂)
+    H       H
+     \     /               O = C = O
+      O                    (180°, tout en ligne)
+     ¨¨ (2 doublets non liants)`,
+      },
+      {
+        type: "exemple",
+        titre: "Exemple : Déterminer la géométrie de PH₃",
+        lignes: [
+          "P est en colonne 15 → 5 électrons de valence",
+          "P forme 3 liaisons avec 3 H → 3 doublets liants",
+          "Il reste (5 − 3×1) / 2 = 1 doublet non liant sur P",
+          "Figure de répulsion : 4 doublets → tétraédrique",
+          "Géométrie réelle : 3 atomes H + 1 doublet non liant → PYRAMIDALE à base triangulaire",
+        ],
+      },
+      {
+        type: "piege",
+        titre: "⚡ Points à retenir (surlignés en cours)",
+        lignes: [
+          "S'il y a un doublet non liant → la géométrie est DIFFÉRENTE de la figure de répulsion",
+          "m = nombre de doublets liants, n = nombre de doublets non liants",
+          "m+n ≠ 0 et n ≠ 0 → la géométrie est modifiée par rapport à la figure",
+          "Tétraédrique SEULEMENT si 4 doublets liants et 0 non liant",
+          "Vecteur nul = APOLAIRE / Vecteur non nul = POLAIRE",
+          "Bien repérer ce que l'on compte : pour la géométrie, on NE compte PAS les doublets non liants",
+        ],
+      },
+    ],
+  },
+  {
+    id: 5,
+    emoji: "⚡",
+    titre: "Polarité des liaisons et des molécules",
+    couleur: "#dc2626",
+    fond: "#fef2f2",
+    contenu: [
+      {
+        type: "definition",
+        titre: "L'électronégativité",
+        texte:
+          "L'électronégativité d'un atome quantifie sa capacité à ATTIRER à lui les doublets d'électrons d'une liaison dans laquelle il est engagé. C'est une grandeur SANS UNITÉ. Les valeurs varient typiquement de EN=1 à EN=4 environ.",
+      },
+      {
+        type: "regle",
+        titre: "Variation de l'électronégativité dans le tableau périodique",
+        lignes: [
+          "Sur une PÉRIODE (ligne) → l'électronégativité AUGMENTE de gauche à droite",
+          "Dans une COLONNE (groupe) → l'électronégativité AUGMENTE du bas vers le haut",
+          "L'atome le plus électronégatif = le fluor F (EN ≈ 4,0)",
+          "Les valeurs à connaître : F=4,0 / O=3,4 / N=3,0 / Cl=3,1 / C=2,5 / H=2,2",
+        ],
+      },
+      {
+        type: "definition",
+        titre: "Liaison polaire",
+        texte:
+          "Une liaison est dite POLAIRE lorsque deux atomes liés ont des électronégativités DIFFÉRENTES. La polarité d'une liaison peut être représentée par une FLÈCHE orientée de l'atome le plus électronégatif VERS l'atome le moins électronégatif (= vecteur polaire). En pratique, une différence ΔEN > 0,4 est nécessaire pour avoir une liaison polarisée.",
+      },
+      {
+        type: "schema",
+        titre: "Sens du vecteur polaire (convention française)",
+        ascii: `
+ATTENTION : En France, le vecteur polaire va de l'atome
+le moins électronégatif VERS le plus électronégatif !
+(sens opposé à ce qui est parfois présenté en anglais)
+
+Liaison C—Cl :   C ←--- Cl    car EN(Cl)=3,1 > EN(C)=2,5
+                              ΔEN = 0,6 → liaison POLAIRE
+
+Liaison O—H :   O ---→ H     car EN(O)=3,4 > EN(H)=2,2
+                              ΔEN = 1,2 → liaison POLAIRE
+
+Liaison C—H :   C et H ont EN proches → très peu polaire
+
+Liaison entre 2 atomes identiques → APOLAIRE (ΔEN = 0)`,
+      },
+      {
+        type: "regle",
+        titre: "Molécule polaire ou apolaire ?",
+        lignes: [
+          "Une molécule est POLAIRE si son VECTEUR POLAIRE RÉSULTANT n'est PAS NUL",
+          "Le vecteur résultant = somme vectorielle de tous les vecteurs polaires de chaque liaison",
+          "Si la géométrie est symétrique → les vecteurs se compensent → vecteur nul → molécule APOLAIRE",
+          "Si la géométrie n'est pas symétrique → vecteur non nul → molécule POLAIRE",
+        ],
+      },
+      {
+        type: "schema",
+        titre: "Exemples de molécules polaires/apolaires",
+        ascii: `
+CF₄ (tétrafluorométhane) :
+      F
+      |
+  F — C — F    → géométrie TÉTRAÉDRIQUE
+      |          → les 4 vecteurs C→F se compensent
+      F          → vecteur résultant = NUL → APOLAIRE
+
+CHF₃ (trifluorométhane) :
+      F
+      |
+  F — C — H    → géométrie tétraédrique MAIS asymétrique
+      |          → les vecteurs NE se compensent PAS
+      F          → vecteur résultant ≠ NUL → POLAIRE
+
+H₂O (eau) :
+   H       H
+    \     /    → géométrie COUDÉE
+     O          → les 2 vecteurs O←H ne se compensent PAS
+     ↘↙         → vecteur résultant ≠ NUL → POLAIRE
+
+CO₂ (dioxyde de carbone) :
+O = C = O    → géométrie LINÉAIRE
+←      →     → les 2 vecteurs sont opposés et égaux
+             → vecteur résultant = NUL → APOLAIRE`,
+      },
+      {
+        type: "exemple",
+        titre: "Méthode complète : Étudier la polarité de NH₃",
+        lignes: [
+          "1. Électronégativités : EN(N)=3,0 / EN(H)=2,2 → ΔEN=0,8 > 0,4 → liaisons N-H polaires",
+          "2. Sens des vecteurs : N plus électronégatif → vecteurs pointent vers N (de H vers N)",
+          "3. Géométrie : NH₃ est PYRAMIDALE → les 3 vecteurs N←H ne se compensent PAS",
+          "4. Conclusion : vecteur résultant ≠ 0 → NH₃ est une molécule POLAIRE",
+        ],
+      },
+      {
+        type: "piege",
+        titre: "⚡ Points à retenir (surlignés en cours)",
+        lignes: [
+          "Une molécule peut avoir des liaisons polaires ET être apolaire globalement (ex: CO₂, CF₄)",
+          "La géométrie est ESSENTIELLE pour déterminer la polarité d'une molécule",
+          "En France : la flèche va de l'atome MOINS électronégatif VERS le PLUS électronégatif",
+          "ΔEN > 0,4 → liaison polaire / ΔEN ≤ 0,4 → liaison considérée comme apolaire",
+          "Vecteur résultant NUL → molécule apolaire / Vecteur résultant NON NUL → molécule polaire",
+          "Pour trouver le vecteur résultant : additionner VECTORIELLEMENT tous les vecteurs polaires",
+        ],
+      },
+    ],
+  },
+];
+
+const typeStyles = {
+  definition: { bg: "#fff", border: "#6366f1", icon: "📌" },
+  regle: { bg: "#fffbeb", border: "#f59e0b", icon: "📏" },
+  schema: { bg: "#f0fdf4", border: "#22c55e", icon: "🗂️" },
+  methode: { bg: "#f0f9ff", border: "#0ea5e9", icon: "🔧" },
+  exemple: { bg: "#fdf4ff", border: "#a855f7", icon: "💡" },
+  piege: { bg: "#fff1f2", border: "#f43f5e", icon: "⚡" },
+};
+
+function Bloc({ bloc }) {
+  const style = typeStyles[bloc.type] || typeStyles.definition;
+  return (
+    <div
+      style={{
+        background: style.bg,
+        borderLeft: `4px solid ${style.border}`,
+        borderRadius: "10px",
+        padding: "16px 20px",
+        marginBottom: "14px",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        style={{
+          fontFamily: "'Sora', sans-serif",
+          fontWeight: 700,
+          fontSize: "0.95rem",
+          color: style.border,
+          marginBottom: "8px",
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+        }}
+      >
+        <span>{style.icon}</span>
+        <span>{bloc.titre}</span>
+      </div>
+      {bloc.texte && (
+        <p
+          style={{
+            margin: 0,
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.93rem",
+            color: "#1e293b",
+            lineHeight: 1.7,
+          }}
+        >
+          {bloc.texte}
+        </p>
+      )}
+      {bloc.lignes && (
+        <ul
+          style={{
+            margin: "4px 0 0 0",
+            paddingLeft: "20px",
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: "0.93rem",
+            color: "#1e293b",
+            lineHeight: 1.8,
+          }}
+        >
+          {bloc.lignes.map((l, i) => (
+            <li key={i}>{l}</li>
+          ))}
+        </ul>
+      )}
+      {bloc.ascii && (
+        <pre
+          style={{
+            margin: "8px 0 0 0",
+            fontFamily: "'Fira Mono', 'Courier New', monospace",
+            fontSize: "0.82rem",
+            color: "#0f172a",
+            background: "rgba(0,0,0,0.04)",
+            borderRadius: "6px",
+            padding: "10px 12px",
+            whiteSpace: "pre-wrap",
+            lineHeight: 1.7,
+            overflowX: "auto",
+          }}
+        >
+          {bloc.ascii}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+export default function FicheRevision() {
+  const [actif, setActif] = useState(null);
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        fontFamily: "'DM Sans', sans-serif",
+        padding: "24px 16px 48px",
+      }}
+    >
+      <link
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@700;800&family=DM+Sans:wght@400;500;600&family=Fira+Mono&display=swap"
+        rel="stylesheet"
+      />
+
+      {/* Header */}
+      <div style={{ textAlign: "center", marginBottom: "36px" }}>
+        <div
+          style={{
+            display: "inline-block",
+            background: "linear-gradient(90deg, #6366f1, #ec4899)",
+            borderRadius: "12px",
+            padding: "3px 18px",
+            marginBottom: "10px",
+          }}
+        >
+          <span
+            style={{
+              color: "white",
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 700,
+              fontSize: "0.8rem",
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+            }}
+          >
+            Première Spé Physique-Chimie
+          </span>
+        </div>
+        <h1
+          style={{
+            color: "white",
+            fontFamily: "'Sora', sans-serif",
+            fontWeight: 800,
+            fontSize: "clamp(1.4rem, 4vw, 2rem)",
+            margin: "0 0 6px 0",
+            lineHeight: 1.2,
+          }}
+        >
+          Chapitre 5 — De la structure
+          <br />à la polarité d'une entité
+        </h1>
+        <p
+          style={{
+            color: "#94a3b8",
+            fontSize: "0.9rem",
+            margin: 0,
+            fontFamily: "'DM Sans', sans-serif",
+          }}
+        >
+          Clique sur une partie pour la déplier ✨
+        </p>
+      </div>
+
+      {/* Sections */}
+      <div style={{ maxWidth: "780px", margin: "0 auto" }}>
+        {sections.map((section) => {
+          const ouvert = actif === section.id;
+          return (
+            <div key={section.id} style={{ marginBottom: "16px" }}>
+              {/* Bouton section */}
+              <button
+                onClick={() => setActif(ouvert ? null : section.id)}
+                style={{
+                  width: "100%",
+                  background: ouvert
+                    ? section.couleur
+                    : "rgba(255,255,255,0.07)",
+                  border: `2px solid ${ouvert ? section.couleur : "rgba(255,255,255,0.12)"}`,
+                  borderRadius: "14px",
+                  padding: "18px 22px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  transition: "all 0.2s ease",
+                  textAlign: "left",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+                  <span style={{ fontSize: "1.6rem" }}>{section.emoji}</span>
+                  <div>
+                    <div
+                      style={{
+                        color: "white",
+                        fontFamily: "'Sora', sans-serif",
+                        fontWeight: 700,
+                        fontSize: "1rem",
+                      }}
+                    >
+                      Partie {section.id} — {section.titre}
+                    </div>
+                    <div
+                      style={{
+                        color: ouvert ? "rgba(255,255,255,0.7)" : "#64748b",
+                        fontSize: "0.8rem",
+                        marginTop: "2px",
+                      }}
+                    >
+                      {section.contenu.length} blocs de révision
+                    </div>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    color: "white",
+                    fontSize: "1.2rem",
+                    transition: "transform 0.2s",
+                    transform: ouvert ? "rotate(90deg)" : "rotate(0deg)",
+                  }}
+                >
+                  ▶
+                </span>
+              </button>
+
+              {/* Contenu déroulant */}
+              {ouvert && (
+                <div
+                  style={{
+                    background: section.fond,
+                    borderRadius: "0 0 14px 14px",
+                    padding: "20px 20px 8px",
+                    border: `2px solid ${section.couleur}`,
+                    borderTop: "none",
+                    marginTop: "-4px",
+                  }}
+                >
+                  {section.contenu.map((bloc, i) => (
+                    <Bloc key={i} bloc={bloc} />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Récap final */}
+        <div
+          style={{
+            background: "rgba(255,255,255,0.06)",
+            border: "2px solid rgba(255,255,255,0.15)",
+            borderRadius: "14px",
+            padding: "24px",
+            marginTop: "24px",
+          }}
+        >
+          <div
+            style={{
+              color: "white",
+              fontFamily: "'Sora', sans-serif",
+              fontWeight: 800,
+              fontSize: "1rem",
+              marginBottom: "16px",
+              textAlign: "center",
+            }}
+          >
+            🎯 RÉCAP EXPRESS — Les mots-clés absolus à maîtriser
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+              gap: "10px",
+            }}
+          >
+            {[
+              ["Électron de valence", "Dernière couche"],
+              ["Doublet liant", "= 1 trait = 2 e⁻"],
+              ["Doublet non liant", "Sur 1 seul atome"],
+              ["Règle de l'octet", "8 e⁻ autour"],
+              ["Règle du duet", "2 e⁻ pour H"],
+              ["VSEPR", "Répulsion doublets"],
+              ["Tétraédrique", "4 liants, 0 non liant"],
+              ["Pyramidale", "3 liants, 1 non liant"],
+              ["Coudée", "2 liants, 2 non liants"],
+              ["Linéaire", "0 non liant, 180°"],
+              ["Électronégativité", "Attirer les e⁻"],
+              ["Liaison polaire", "ΔEN > 0,4"],
+              ["Vecteur polaire", "→ vers + électronég."],
+              ["Molécule polaire", "Vecteur résultant ≠ 0"],
+              ["Molécule apolaire", "Vecteur résultant = 0"],
+              ["Cation", "Charge +, déficit e⁻"],
+            ].map(([terme, def], i) => (
+              <div
+                key={i}
+                style={{
+                  background: "rgba(255,255,255,0.08)",
+                  borderRadius: "8px",
+                  padding: "10px 12px",
+                }}
+              >
+                <div
+                  style={{
+                    color: "#a5b4fc",
+                    fontFamily: "'Sora', sans-serif",
+                    fontWeight: 700,
+                    fontSize: "0.82rem",
+                  }}
+                >
+                  {terme}
+                </div>
+                <div
+                  style={{
+                    color: "#94a3b8",
+                    fontSize: "0.78rem",
+                    marginTop: "3px",
+                  }}
+                >
+                  {def}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div
+          style={{
+            textAlign: "center",
+            color: "#475569",
+            fontSize: "0.75rem",
+            marginTop: "24px",
+          }}
+        >
+          Fiche construite à partir de tes cours et exercices — Bonne révision 💪
+        </div>
+      </div>
+    </div>
+  );
+}
